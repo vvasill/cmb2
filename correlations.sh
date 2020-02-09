@@ -14,7 +14,7 @@ np="$(( 2*$nx ))"
 z_min=0.0
 z_max=0.1
 fwhm_corr='300 600 900'
-fw="300"
+fw="120"
 random_n='10'
 
 #############################################################################################################
@@ -23,12 +23,12 @@ catalog_name=$catalog_path'g_'$z_min'_'$z_max
 other_catalog_name=$catalog_path'temp_g_'$z_min'_'$z_max	
 
 #python3 read_csv.py $z_min $z_max $catalog_name'.csv' $catalog_name'.dat'
-#awk '{printf "%sd %sd 1.0\n", $1, $2}' $catalog_name'.dat' > $other_catalog_name'.dat'
+awk '{printf "%sd %sd 1.0\n", $1, $2}' $catalog_name'.dat' > $other_catalog_name'.dat'
  	
 #generate map from SDSS catalog data
-#mappat -fp $other_catalog_name'.dat' -o $maps_path'src.fits' -nx $nx -np $np
-#f2fig $maps_path'src.fits' -o $maps_path'src'$z_min'_'$z_max'.gif' -Cs 0.0,1.0 -c 0 -notitle
-#cl2map -map $maps_path'src.fits' -lmax $lmax -ao $maps_path'src_alm.fits'
+mappat -fp $other_catalog_name'.dat' -o $maps_path'src.fits' -nx $nx -np $np
+f2fig $maps_path'src.fits' -o $maps_path'src'$z_min'_'$z_max'.gif' -Cs 0.0,1.0 -c 0 -notitle
+cl2map -map $maps_path'src.fits' -lmax $lmax -ao $maps_path'src_alm.fits'
 
 #############################################################################################################
 #smooth maps
@@ -47,14 +47,14 @@ cl2map -falm $map'_'$fw'_alm.fits' -o $map'_'$fw'_smooth_map.fits' -lmax $lmax -
 f2fig $map'_'$fw'_smooth_map.fits' -o $map'_'$fw'_smooth_map.gif'
 COMMENT
 
-<<COMMENT
-#or masking
+#<<COMMENT
+#convolving and map generation or masking
 rsalm $map'_alm_eq.fits' -fw $fw -o $map'_'$fw'_smooth_alm.fits'
 echo 'difalm'
 difalm -eq $map'_'$fw'_smooth_alm.fits' -o $map'_'$fw'_smooth_alm_eq.fits'
 echo 'cl2map'
 cl2map -falm $map'_'$fw'_smooth_alm_eq.fits' -o $map'_'$fw'_smooth_map_eq.fits' -lmax $lmax -nx $nx -np $np
-f2fig $map'_'$fw'_smooth_map_eq.fits' -o test_1.gif
+f2fig $map'_'$fw'_smooth_map_eq.fits' -o $map'_'$fw'_smooth_map_eq.gif'
 echo 'mapcut'
 mapcut $map'_'$fw'_smooth_map_eq.fits' -rm -90.0d,0d,-5.0d,360.0d -o temp.fits
 mapcut temp.fits -rm 90.0d,0.0d,20.0d -o $map'_'$fw'_smooth_masked_map_eq.fits'
